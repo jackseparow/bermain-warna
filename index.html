@@ -4,10 +4,8 @@
     <meta charset="utf-8">
     <title>Lab Warna Taman Numerasi</title>
     <script src="https://unpkg.com/blockly/blockly.min.js"></script>
-    <script src="https://unpkg.com/@blockly/field-colour"></script>
-
     <style>
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; display: flex; flex-direction: column; align-items: center; padding: 20px; }
         #main { display: flex; gap: 20px; width: 1000px; max-width: 95vw; }
         #blocklyDiv { height: 500px; flex-grow: 1; border: 3px solid #2c3e50; border-radius: 12px; background: white; }
         #sidebar { width: 280px; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-align: center; }
@@ -38,11 +36,11 @@
 
     <xml id="toolbox" style="display: none">
         <category name="Warna Dasar" colour="230">
-            <block type="color_picker_custom"><field name="COL">#ff0000</field><field name="LABEL">MERAH</field></block>
-            <block type="color_picker_custom"><field name="COL">#ffff00</field><field name="LABEL">KUNING</field></block>
-            <block type="color_picker_custom"><field name="COL">#0000ff</field><field name="LABEL">BIRU</field></block>
-            <block type="color_picker_custom"><field name="COL">#ffffff</field><field name="LABEL">PUTIH</field></block>
-            <block type="color_picker_custom"><field name="COL">#000000</field><field name="LABEL">HITAM</field></block>
+            <block type="color_simple"><field name="COL">#ff0000</field></block>
+            <block type="color_simple"><field name="COL">#ffff00</field></block>
+            <block type="color_simple"><field name="COL">#0000ff</field></block>
+            <block type="color_simple"><field name="COL">#ffffff</field></block>
+            <block type="color_simple"><field name="COL">#000000</field></block>
         </category>
         <category name="Numerasi" colour="160">
             <block type="color_mixer_ratio"></block>
@@ -51,14 +49,23 @@
     </xml>
 
     <script>
-        // --- 1. DEFINISI BLOK ---
+        // --- 1. DEFINISI BLOK (VERSI DROPDOWN - ANTI ERROR) ---
         Blockly.defineBlocksWithJsonArray([
           {
-            "type": "color_picker_custom",
-            "message0": "%1 %2",
+            "type": "color_simple",
+            "message0": "Warna: %1",
             "args0": [
-              { "type": "field_colour", "name": "COL", "colour": "#ff0000" },
-              { "type": "field_label", "name": "LABEL", "text": "WARNA" }
+              {
+                "type": "field_dropdown",
+                "name": "COL",
+                "options": [
+                  ["MERAH", "#ff0000"],
+                  ["KUNING", "#ffff00"],
+                  ["BIRU", "#0000ff"],
+                  ["PUTIH", "#ffffff"],
+                  ["HITAM", "#000000"]
+                ]
+              }
             ],
             "output": "Color",
             "colour": "#ff0000"
@@ -94,10 +101,10 @@
         function getBlockColor(block) {
             if (!block) return "#ffffff";
             
-            if (block.type === 'color_picker_custom') {
-                const color = block.getFieldValue('COL') || "#ffffff";
-                block.setColour(color); // Warna blok ikut berubah
-                return color;
+            if (block.type === 'color_simple') {
+                const val = block.getFieldValue('COL');
+                block.setColour(val); // Ubah warna blok sesuai pilihan
+                return val;
             }
             
             if (block.type === 'get_stored_color') {
@@ -109,7 +116,6 @@
                 const b2 = block.getInputTargetBlock('COLOR2');
                 const r1 = parseFloat(block.getFieldValue('RATIO1')) || 1;
                 const r2 = parseFloat(block.getFieldValue('RATIO2')) || 1;
-                
                 return mixColorsLogic(getBlockColor(b1), r1, getBlockColor(b2), r2);
             }
             return "#ffffff";
@@ -117,7 +123,7 @@
 
         function mixColorsLogic(c1, r1, c2, r2) {
             const f = h => {
-                const m = (h || "#ffffff").match(/\w\w/g);
+                const m = h.match(/\w\w/g);
                 return m ? m.map(x => parseInt(x, 16)) : [255, 255, 255];
             };
             const rgb1 = f(c1), rgb2 = f(c2);
@@ -138,13 +144,9 @@
         workspace.addChangeListener(() => {
             const blocks = workspace.getAllBlocks(false);
             let result = "#ffffff";
-            
             blocks.forEach(block => {
-                if (!block.getParent()) {
-                    result = getBlockColor(block);
-                }
+                if (!block.getParent()) { result = getBlockColor(block); }
             });
-
             lastResult = result;
             document.getElementById('preview').style.backgroundColor = result;
             document.getElementById('hex-display').innerText = result.toUpperCase();
