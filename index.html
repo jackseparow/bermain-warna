@@ -39,11 +39,7 @@
 
     <xml id="toolbox" style="display: none">
         <category name="Warna Dasar" colour="230">
-            <block type="color_simple"><field name="COL">#ff0000</field></block>
-            <block type="color_simple"><field name="COL">#ffff00</field></block>
-            <block type="color_simple"><field name="COL">#0000ff</field></block>
-            <block type="color_simple"><field name="COL">#ffffff</field></block>
-            <block type="color_simple"><field name="COL">#000000</field></block>
+            <block type="color_simple"></block>
         </category>
         <category name="Palet Pencampur" colour="160">
             <block type="color_mixer_nesting"></block>
@@ -56,7 +52,7 @@
         Blockly.defineBlocksWithJsonArray([
           {
             "type": "color_simple",
-            "message0": "%1",
+            "message0": "Warna: %1",
             "args0": [
               {
                 "type": "field_dropdown",
@@ -108,7 +104,7 @@
             
             if (block.type === 'color_simple') {
                 const val = block.getFieldValue('COL');
-                block.setColour(val);
+                block.setColour(val); // Blok berubah warna sesuai pilihan dropdown
                 return val;
             }
             
