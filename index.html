@@ -2,67 +2,47 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Lab Warna - Taman Numerasi</title>
+    <title>Lab Warna Taman Numerasi</title>
     <script src="https://unpkg.com/blockly/blockly.min.js"></script>
     <script src="https://unpkg.com/@blockly/field-colour"></script>
-    <script src="https://unpkg.com/blockly/javascript_compressed.js"></script>
-    
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8f9fa; display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; }
-        .header { text-align: center; margin-bottom: 20px; }
-        #main-container { display: flex; gap: 20px; width: 1100px; max-width: 95vw; }
-        #blocklyDiv { height: 550px; flex-grow: 1; border: 3px solid #2c3e50; border-radius: 12px; background: white; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        #sidebar { width: 300px; display: flex; flex-direction: column; gap: 15px; }
-        .panel { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-align: center; }
-        #preview-box { width: 110px; height: 110px; margin: 15px auto; border-radius: 50%; border: 6px solid #eee; background: #fff; box-shadow: inset 0 2px 5px rgba(0,0,0,0.2); transition: background-color 0.4s ease; }
-        #hex-label { font-size: 1.3em; font-weight: bold; color: #34495e; margin-bottom: 10px; }
-        .storage-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px; }
-        .bottle { width: 100%; height: 85px; border: 2px solid #333; border-radius: 5px 5px 25px 25px; background: #fff; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; box-shadow: inset 0 -12px 10px rgba(0,0,0,0.05); transition: 0.3s; }
-        button { background: #27ae60; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; font-size: 1em; }
-        button:hover { background: #219150; transform: translateY(-2px); }
+        body { font-family: sans-serif; background: #f0f2f5; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        #main-container { display: flex; gap: 20px; width: 1000px; max-width: 95vw; }
+        #blocklyDiv { height: 500px; flex-grow: 1; border: 3px solid #2c3e50; border-radius: 12px; background: white; }
+        #sidebar { width: 280px; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-align: center; }
+        #preview { width: 100px; height: 100px; margin: 15px auto; border-radius: 50%; border: 5px solid #eee; background: #fff; }
+        .bottle-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px; }
+        .bottle { width: 60px; height: 80px; border: 2px solid #333; border-radius: 5px 5px 20px 20px; background: #fff; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; }
+        button { background: #27ae60; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <h2>🎨 Lab Warna Taman Numerasi</h2>
-        <p>Belajar Rasio dan Percampuran Warna secara Digital</p>
-    </div>
+    <h2>🎨 Lab Warna Taman Numerasi (Versi Mandiri)</h2>
 
     <div id="main-container">
         <div id="blocklyDiv"></div>
-
         <div id="sidebar">
-            <div class="panel">
-                <h3>Hasil Campuran</h3>
-                <div id="preview-box"></div>
-                <div id="hex-label">#FFFFFF</div>
-                <button onclick="saveToStorage()">Simpan ke Rak Botol</button>
-            </div>
-
-            <div class="panel">
-                <h3>Rak Penyimpanan</h3>
-                <div class="storage-grid">
-                    <div id="bot-0" class="bottle">Botol 1</div>
-                    <div id="bot-1" class="bottle">Botol 2</div>
-                    <div id="bot-2" class="bottle">Botol 3</div>
-                </div>
-                <p style="font-size: 11px; color: #7f8c8d; margin-top: 15px;">Gunakan blok <b>"Ambil Botol"</b> untuk mencampur hasil ini kembali!</p>
+            <h3>Hasil Campuran</h3>
+            <div id="preview"></div>
+            <div id="hex-display" style="font-weight: bold; margin-bottom: 15px;">#FFFFFF</div>
+            <button onclick="saveToStorage()">Simpan ke Rak</button>
+            <div class="bottle-grid">
+                <div id="bot-0" class="bottle">1</div>
+                <div id="bot-1" class="bottle">2</div>
+                <div id="bot-2" class="bottle">3</div>
             </div>
         </div>
     </div>
 
     <xml id="toolbox" style="display: none">
-        <category name="Warna Dasar" colour="230">
+        <category name="Warna" colour="230">
             <block type="color_picker_custom"><field name="COL">#ff0000</field><field name="LABEL">MERAH</field></block>
             <block type="color_picker_custom"><field name="COL">#ffff00</field><field name="LABEL">KUNING</field></block>
             <block type="color_picker_custom"><field name="COL">#0000ff</field><field name="LABEL">BIRU</field></block>
-            <block type="color_picker_custom"><field name="COL">#ffffff</field><field name="LABEL">PUTIH</field></block>
-            <block type="color_picker_custom"><field name="COL">#000000</field><field name="LABEL">HITAM</field></block>
         </category>
         <category name="Numerasi" colour="160">
             <block type="color_mixer_ratio"></block>
-            <block type="get_stored_color"></block>
         </category>
     </xml>
 
@@ -90,78 +70,71 @@
             ],
             "output": "Color",
             "colour": 160
-          },
-          {
-            "type": "get_stored_color",
-            "message0": "ambil botol: %1",
-            "args0": [
-              { "type": "field_dropdown", "name": "ID", "options": [["1", "0"], ["2", "1"], ["3", "2"]] }
-            ],
-            "output": "Color",
-            "colour": 45
           }
         ]);
 
-        // --- 2. GENERATOR ---
-        javascript.javascriptGenerator.forBlock['color_picker_custom'] = function(block) {
-          const color = block.getFieldValue('COL');
-          block.setColour(color); // Update warna fisik blok
-          return ["'" + color + "'", javascript.Order.ATOMIC];
-        };
-
-        javascript.javascriptGenerator.forBlock['color_mixer_ratio'] = function(block) {
-          const c1 = javascript.javascriptGenerator.valueToCode(block, 'COLOR1', javascript.Order.ATOMIC) || "'#ffffff'";
-          const r1 = block.getFieldValue('RATIO1') || 1;
-          const c2 = javascript.javascriptGenerator.valueToCode(block, 'COLOR2', javascript.Order.ATOMIC) || "'#ffffff'";
-          const r2 = block.getFieldValue('RATIO2') || 1;
-          return [`mixColors(${c1}, ${r1}, ${c2}, ${r2})`, javascript.Order.FUNCTION_CALL];
-        };
-
-        javascript.javascriptGenerator.forBlock['get_stored_color'] = function(block) {
-          const id = block.getFieldValue('ID');
-          return [`storage[${id}]`, javascript.Order.ATOMIC];
-        };
-
-        // --- 3. LOGIKA APLIKASI ---
-        const workspace = Blockly.inject('blocklyDiv', { 
-            toolbox: document.getElementById('toolbox'),
-            trashcan: true,
-            move: { scrollbars: true, drag: true, wheel: true }
-        });
-        
+        // --- 2. LOGIKA CAMPUR (Tanpa Generator Luar) ---
+        const workspace = Blockly.inject('blocklyDiv', { toolbox: document.getElementById('toolbox') });
         let storage = ["#ffffff", "#ffffff", "#ffffff"];
-        let currentColor = "#ffffff";
+        let lastResult = "#ffffff";
 
-        function mixColors(c1, r1, c2, r2) {
+        function getBlockColor(block) {
+            if (!block) return "#ffffff";
+            
+            // Jika blok adalah pemilih warna langsung
+            if (block.type === 'color_picker_custom') {
+                const color = block.getFieldValue('COL');
+                block.setColour(color); // Bonus: ubah warna blok
+                return color;
+            }
+            
+            // Jika blok adalah mixer
+            if (block.type === 'color_mixer_ratio') {
+                const b1 = block.getInputTargetBlock('COLOR1');
+                const b2 = block.getInputTargetBlock('COLOR2');
+                const r1 = parseFloat(block.getFieldValue('RATIO1')) || 1;
+                const r2 = parseFloat(block.getFieldValue('RATIO2')) || 1;
+                
+                const c1 = getBlockColor(b1);
+                const c2 = getBlockColor(b2);
+                
+                return mixColorsLogic(c1, r1, c2, r2);
+            }
+            return "#ffffff";
+        }
+
+        function mixColorsLogic(c1, r1, c2, r2) {
             const f = h => h.match(/\w\w/g).map(x => parseInt(x, 16));
             const rgb1 = f(c1), rgb2 = f(c2);
-            const t = parseFloat(r1) + parseFloat(r2);
+            const t = r1 + r2;
             const res = [0,1,2].map(i => Math.floor((rgb1[i]*r1 + rgb2[i]*r2)/t));
-            const toHex = x => x.toString(16).padStart(2, '0');
-            return "#" + res.map(toHex).join('');
+            return "#" + res.map(x => x.toString(16).padStart(2, '0')).join('');
         }
 
         function saveToStorage() {
-            const id = prompt("Simpan di botol nomor berapa? (1, 2, atau 3)") - 1;
+            const id = prompt("Botol 1, 2, atau 3?") - 1;
             if (id >= 0 && id <= 2) {
-                storage[id] = currentColor;
-                document.getElementById(`bot-${id}`).style.backgroundColor = currentColor;
-                // Memberi tahu Blockly ada perubahan data di rak
-                workspace.fireChangeListener(new Blockly.Events.BlockChange());
+                storage[id] = lastResult;
+                document.getElementById(`bot-${id}`).style.backgroundColor = lastResult;
             }
         }
 
-        // Listener Otomatis: Tanpa Tombol Run
+        // --- 3. JALANKAN SECARA OTOMATIS ---
         workspace.addChangeListener(() => {
-            const code = javascript.javascriptGenerator.workspaceToCode(workspace);
-            try {
-                const result = eval(code);
-                if (result && result.startsWith('#')) {
-                    currentColor = result;
-                    document.getElementById('preview-box').style.backgroundColor = result;
-                    document.getElementById('hex-label').innerText = result.toUpperCase();
+            // Cari blok teratas yang tidak punya output (biasanya mixer utama)
+            const blocks = workspace.getAllBlocks(false);
+            let result = "#ffffff";
+            
+            blocks.forEach(block => {
+                // Kita hitung warna dari blok mana pun yang ada di workspace
+                if (block.type === 'color_mixer_ratio' || block.type === 'color_picker_custom') {
+                    result = getBlockColor(block);
                 }
-            } catch(e) {}
+            });
+
+            lastResult = result;
+            document.getElementById('preview').style.backgroundColor = result;
+            document.getElementById('hex-display').innerText = result.toUpperCase();
         });
     </script>
 </body>
