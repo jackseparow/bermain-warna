@@ -75,7 +75,7 @@
           },
           {
             "type": "color_mixer_nesting",
-            "message0": "Campur %1 bagian %2 + %3 bagian %4 %5 Satuan: %6",
+            "message0": "Campur %1 %2 + %3 %4 %5 Satuan: %6",
             "args0": [
               { "type": "field_number", "name": "RATIO1", "value": 1, "min": 0 },
               { "type": "input_value", "name": "COLOR1", "check": "Color" },
@@ -133,9 +133,7 @@
         }
 
         function mixLogic(c1, r1, c2, r2) {
-            // Jika kedua slot kosong
             if (!c1 && !c2) return "#ffffff";
-            // Jika hanya satu slot terisi, abaikan rasio slot yang kosong
             if (c1 && !c2) return c1;
             if (!c1 && c2) return c2;
 
