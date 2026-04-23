@@ -9,7 +9,8 @@
         #main { display: flex; gap: 20px; width: 1000px; max-width: 95vw; }
         #blocklyDiv { height: 500px; flex-grow: 1; border: 3px solid #2c3e50; border-radius: 12px; background: white; }
         #sidebar { width: 280px; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-align: center; }
-        #preview { width: 110px; height: 110px; margin: 15px auto; border-radius: 50%; border: 5px solid #eee; background: #fff; box-shadow: inset 0 2px 5px rgba(0,0,0,0.1); }
+        #preview { width: 110px; height: 110px; margin: 15px auto; border-radius: 50%; border: 5px solid #eee; background: #fff; }
+        #hex-display { font-weight: bold; font-size: 1.2em; margin-bottom: 10px; }
         .bottle-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px; }
         .bottle { width: 60px; height: 80px; border: 2px solid #333; border-radius: 5px 5px 20px 20px; background: #fff; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; }
         button { background: #27ae60; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; }
@@ -24,7 +25,7 @@
         <div id="sidebar">
             <h3>Hasil Campuran</h3>
             <div id="preview"></div>
-            <div id="hex-display" style="font-weight: bold; font-size: 1.2em; margin-bottom: 10px;">#FFFFFF</div>
+            <div id="hex-display">#FFFFFF</div>
             <button onclick="saveToStorage()">Simpan ke Rak</button>
             <div class="bottle-grid">
                 <div id="bot-0" class="bottle">1</div>
@@ -44,16 +45,15 @@
         </category>
         <category name="Numerasi" colour="160">
             <block type="color_mixer_ratio"></block>
-            <block type="get_stored_color"></block>
         </category>
     </xml>
 
     <script>
-        // --- 1. DEFINISI BLOK (VERSI DROPDOWN - ANTI ERROR) ---
+        // --- 1. DEFINISI BLOK TANPA FIELD_COLOUR ---
         Blockly.defineBlocksWithJsonArray([
           {
             "type": "color_simple",
-            "message0": "Warna: %1",
+            "message0": "%1",
             "args0": [
               {
                 "type": "field_dropdown",
@@ -81,15 +81,6 @@
             ],
             "output": "Color",
             "colour": 160
-          },
-          {
-            "type": "get_stored_color",
-            "message0": "ambil botol: %1",
-            "args0": [
-              { "type": "field_dropdown", "name": "ID", "options": [["1", "0"], ["2", "1"], ["3", "2"]] }
-            ],
-            "output": "Color",
-            "colour": 45
           }
         ]);
 
@@ -102,13 +93,9 @@
             if (!block) return "#ffffff";
             
             if (block.type === 'color_simple') {
-                const val = block.getFieldValue('COL');
-                block.setColour(val); // Ubah warna blok sesuai pilihan
-                return val;
-            }
-            
-            if (block.type === 'get_stored_color') {
-                return storage[block.getFieldValue('ID')] || "#ffffff";
+                const hex = block.getFieldValue('COL');
+                block.setColour(hex); // Blok berubah warna jadi Merah/Biru dll
+                return hex;
             }
             
             if (block.type === 'color_mixer_ratio') {
@@ -116,16 +103,14 @@
                 const b2 = block.getInputTargetBlock('COLOR2');
                 const r1 = parseFloat(block.getFieldValue('RATIO1')) || 1;
                 const r2 = parseFloat(block.getFieldValue('RATIO2')) || 1;
-                return mixColorsLogic(getBlockColor(b1), r1, getBlockColor(b2), r2);
+                
+                return mixLogic(getBlockColor(b1), r1, getBlockColor(b2), r2);
             }
             return "#ffffff";
         }
 
-        function mixColorsLogic(c1, r1, c2, r2) {
-            const f = h => {
-                const m = h.match(/\w\w/g);
-                return m ? m.map(x => parseInt(x, 16)) : [255, 255, 255];
-            };
+        function mixLogic(c1, r1, c2, r2) {
+            const f = h => h.match(/\w\w/g).map(x => parseInt(x, 16));
             const rgb1 = f(c1), rgb2 = f(c2);
             const total = r1 + r2;
             const res = [0,1,2].map(i => Math.floor((rgb1[i]*r1 + rgb2[i]*r2)/total));
@@ -133,11 +118,10 @@
         }
 
         function saveToStorage() {
-            const id = prompt("Simpan di botol nomor berapa? (1, 2, atau 3)") - 1;
+            const id = prompt("Botol 1, 2, atau 3?") - 1;
             if (id >= 0 && id <= 2) {
                 storage[id] = lastResult;
                 document.getElementById(`bot-${id}`).style.backgroundColor = lastResult;
-                workspace.fireChangeListener(new Blockly.Events.BlockChange());
             }
         }
 
@@ -145,7 +129,7 @@
             const blocks = workspace.getAllBlocks(false);
             let result = "#ffffff";
             blocks.forEach(block => {
-                if (!block.getParent()) { result = getBlockColor(block); }
+                if (!block.getParent()) result = getBlockColor(block);
             });
             lastResult = result;
             document.getElementById('preview').style.backgroundColor = result;
