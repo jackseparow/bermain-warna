@@ -4,16 +4,18 @@
     <meta charset="utf-8">
     <title>Lab Warna Taman Numerasi</title>
     <script src="https://unpkg.com/blockly/blockly.min.js"></script>
+    <script src="https://unpkg.com/blockly/javascript_compressed.js"></script>
     <style>
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; display: flex; flex-direction: column; align-items: center; padding: 20px; }
-        #main { display: flex; gap: 20px; width: 1000px; max-width: 98vw; }
+        #main { display: flex; gap: 20px; width: 1100px; max-width: 98vw; }
         #blocklyDiv { height: 600px; flex-grow: 1; border: 3px solid #2c3e50; border-radius: 12px; background: white; }
-        #sidebar { width: 280px; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-align: center; }
-        #preview { width: 110px; height: 110px; margin: 15px auto; border-radius: 50%; border: 5px solid #eee; background: #fff; box-shadow: inset 0 2px 5px rgba(0,0,0,0.1); }
-        #hex-display { font-weight: bold; font-size: 1.2em; margin-bottom: 10px; color: #34495e; }
+        #sidebar { width: 300px; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-align: center; }
+        #preview { width: 120px; height: 120px; margin: 15px auto; border-radius: 50%; border: 8px solid #eee; background: #fff; box-shadow: inset 0 2px 5px rgba(0,0,0,0.1); }
+        #hex-display { font-weight: bold; font-size: 1.3em; margin-bottom: 10px; color: #2c3e50; }
         .bottle-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px; }
-        .bottle { width: 60px; height: 80px; border: 2px solid #333; border-radius: 5px 5px 20px 20px; background: #fff; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; }
+        .bottle { width: 65px; height: 85px; border: 2px solid #333; border-radius: 5px 5px 20px 20px; background: #fff; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; }
         button { background: #27ae60; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; }
+        .hint { font-size: 11px; color: #7f8c8d; margin-top: 10px; text-align: left; background: #ffffd1; padding: 8px; border-radius: 5px; }
     </style>
 </head>
 <body>
@@ -34,6 +36,11 @@
                 <div id="bot-1" class="bottle">2</div>
                 <div id="bot-2" class="bottle">3</div>
             </div>
+            <div class="hint">
+                <b>Cara Tambah Warna:</b><br>
+                1. Klik ikon ⚙️ pada blok pencampur.<br>
+                2. Tarik blok "warna" di dalam kotak kecil ke bawah "induk".
+            </div>
         </div>
     </div>
 
@@ -46,42 +53,116 @@
             <block type="color_simple"><field name="COL">#000000</field></block>
         </category>
         <category name="Palet Pencampur" colour="160">
-            <block type="palet_pencampur"></block>
+            <block type="palet_dinamis"></block>
             <block type="get_stored_color"></block>
         </category>
     </xml>
 
     <script>
-        // --- 1. DEFINISI BLOK ---
+        // --- 1. DEFINISI BLOK DINAMIS (MUTATOR) ---
+        Blockly.Blocks['palet_dinamis'] = {
+            init: function() {
+                this.appendDummyInput().appendField("Palet Pencampur");
+                this.appendDummyInput()
+                    .appendField("Satuan:")
+                    .appendField(new Blockly.FieldDropdown([["bagian", "PARTS"], ["persen (%)", "PERCENT"]]), "UNIT");
+                this.itemCount_ = 2; // Default 2 warna awal
+                this.updateShape_();
+                this.setOutput(true, "Color");
+                this.setColour(160);
+                this.setMutator(new Blockly.Mutator(['mixer_item']));
+            },
+            mutationToDom: function() {
+                let container = Blockly.utils.xml.createElement('mutation');
+                container.setAttribute('items', this.itemCount_);
+                return container;
+            },
+            domToMutation: function(xmlElement) {
+                this.itemCount_ = parseInt(xmlElement.getAttribute('items'), 10);
+                this.updateShape_();
+            },
+            decompose: function(workspace) {
+                let containerBlock = workspace.newBlock('mixer_container');
+                containerBlock.initSvg();
+                let connection = containerBlock.getInput('STACK').connection;
+                for (let i = 0; i < this.itemCount_; i++) {
+                    let itemBlock = workspace.newBlock('mixer_item');
+                    itemBlock.initSvg();
+                    connection.connect(itemBlock.previousConnection);
+                    connection = itemBlock.nextConnection;
+                }
+                return containerBlock;
+            },
+            compose: function(containerBlock) {
+                let itemBlock = containerBlock.getInputTargetBlock('STACK');
+                let connections = [];
+                while (itemBlock) {
+                    connections.push(itemBlock.valueConnection_);
+                    itemBlock = itemBlock.nextConnection && itemBlock.nextConnection.targetBlock();
+                }
+                this.itemCount_ = connections.length;
+                this.updateShape_();
+                for (let i = 0; i < this.itemCount_; i++) {
+                    Blockly.Mutator.reconnect(connections[i], this, 'C' + i);
+                }
+            },
+            saveConnections: function(containerBlock) {
+                let itemBlock = containerBlock.getInputTargetBlock('STACK');
+                let i = 0;
+                while (itemBlock) {
+                    let input = this.getInput('C' + i);
+                    itemBlock.valueConnection_ = input && input.connection.targetConnection;
+                    i++;
+                    itemBlock = itemBlock.nextConnection && itemBlock.nextConnection.targetBlock();
+                }
+            },
+            updateShape_: function() {
+                let i = 0;
+                while (this.getInput('C' + i)) {
+                    this.removeInput('C' + i);
+                    i++;
+                }
+                for (let j = 0; j < this.itemCount_; j++) {
+                    this.appendValueInput('C' + j)
+                        .setCheck("Color")
+                        .appendField("Warna " + (j + 1))
+                        .appendField(new Blockly.FieldNumber(1, 0), 'R' + j)
+                        .setAlign(Blockly.ALIGN_RIGHT);
+                }
+            }
+        };
+
+        Blockly.Blocks['mixer_container'] = {
+            init: function() {
+                this.setColour(160);
+                this.appendDummyInput().appendField("Jumlah Warna");
+                this.appendStatementInput('STACK');
+                this.contextMenu = false;
+            }
+        };
+
+        Blockly.Blocks['mixer_item'] = {
+            init: function() {
+                this.setColour(160);
+                this.appendDummyInput().appendField("Warna");
+                this.setPreviousStatement(true);
+                this.setNextStatement(true);
+                this.contextMenu = false;
+            }
+        };
+
+        // Blok dasar
         Blockly.defineBlocksWithJsonArray([
           {
             "type": "color_simple",
             "message0": "%1",
-            "args0": [{
-                "type": "field_dropdown", "name": "COL",
-                "options": [["MERAH", "#ff0000"], ["KUNING", "#ffff00"], ["BIRU", "#0000ff"], ["PUTIH", "#ffffff"], ["HITAM", "#000000"]]
-            }],
+            "args0": [{"type": "field_dropdown", "name": "COL", "options": [["MERAH", "#ff0000"], ["KUNING", "#ffff00"], ["BIRU", "#0000ff"], ["PUTIH", "#ffffff"], ["HITAM", "#000000"]]}],
             "output": "Color", "colour": "#ff0000"
-          },
-          {
-            "type": "palet_pencampur",
-            "message0": "PALET PENCAMPUR %1 Satuan: %2 %3 Warna 1: %4 Jumlah: %5 Warna 2: %6 Jumlah: %7 Warna 3: %8 Jumlah: %9 Warna 4: %10 Jumlah: %11 Warna 5: %12 Jumlah: %13",
-            "args0": [
-              { "type": "input_dummy" },
-              { "type": "field_dropdown", "name": "UNIT", "options": [["bagian", "PARTS"], ["persen (%)", "PERCENT"]] },
-              { "type": "input_dummy" },
-              { "type": "input_value", "name": "C1", "check": "Color" }, { "type": "field_number", "name": "R1", "value": 1, "min": 0 },
-              { "type": "input_value", "name": "C2", "check": "Color" }, { "type": "field_number", "name": "R2", "value": 0, "min": 0 },
-              { "type": "input_value", "name": "C3", "check": "Color" }, { "type": "field_number", "name": "R3", "value": 0, "min": 0 },
-              { "type": "input_value", "name": "C4", "check": "Color" }, { "type": "field_number", "name": "R4", "value": 0, "min": 0 },
-              { "type": "input_value", "name": "C5", "check": "Color" }, { "type": "field_number", "name": "R5", "value": 0, "min": 0 }
-            ],
-            "output": "Color", "colour": 160
           },
           {
             "type": "get_stored_color",
             "message0": "Ambil Botol: %1",
-            "args0": [{ "type": "field_dropdown", "name": "ID", "options": [["1", "0"], ["2", "1"], ["3", "2"]] }],
+            "args0": [{"type": "field_dropdown", "name": "ID", "options": [["1", "0"], ["2", "1"], ["3", "2"]]}],
             "output": "Color", "colour": 45
           }
         ]);
@@ -103,17 +184,14 @@
                 block.setColour(c);
                 return c;
             }
-            if (block.type === 'palet_pencampur') {
+            if (block.type === 'palet_dinamis') {
                 let cList = [];
                 let rList = [];
-                for (let i = 1; i <= 5; i++) {
+                for (let i = 0; i < block.itemCount_; i++) {
                     let b = block.getInputTargetBlock('C' + i);
                     let r = parseFloat(block.getFieldValue('R' + i)) || 0;
                     let c = getBlockData(b);
-                    if (c && r > 0) {
-                        cList.push(c);
-                        rList.push(r);
-                    }
+                    if (c) { cList.push(c); rList.push(r); }
                 }
                 return mixLogic(cList, rList);
             }
@@ -123,10 +201,8 @@
         function mixLogic(colors, ratios) {
             if (colors.length === 0) return "#ffffff";
             if (colors.length === 1) return colors[0];
-
             let rTotal = 0, gTotal = 0, bTotal = 0, ratioSum = 0;
             const f = h => h.match(/\w\w/g).map(x => parseInt(x, 16));
-
             for (let i = 0; i < colors.length; i++) {
                 let rgb = f(colors[i]);
                 rTotal += rgb[0] * ratios[i];
@@ -134,7 +210,6 @@
                 bTotal += rgb[2] * ratios[i];
                 ratioSum += ratios[i];
             }
-
             if (ratioSum === 0) return "#ffffff";
             let res = [rTotal, gTotal, bTotal].map(v => Math.floor(v / ratioSum));
             return "#" + res.map(x => x.toString(16).padStart(2, '0')).join('');
