@@ -5,8 +5,9 @@
     <title>Lab Warna Taman Numerasi</title>
     <script src="https://unpkg.com/blockly/blockly.min.js"></script>
     <script src="https://unpkg.com/@blockly/field-colour"></script>
+
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; display: flex; flex-direction: column; align-items: center; padding: 20px; }
         #main { display: flex; gap: 20px; width: 1000px; max-width: 95vw; }
         #blocklyDiv { height: 500px; flex-grow: 1; border: 3px solid #2c3e50; border-radius: 12px; background: white; }
         #sidebar { width: 280px; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-align: center; }
@@ -27,8 +28,6 @@
             <div id="preview"></div>
             <div id="hex-display" style="font-weight: bold; font-size: 1.2em; margin-bottom: 10px;">#FFFFFF</div>
             <button onclick="saveToStorage()">Simpan ke Rak</button>
-            <hr style="margin: 20px 0;">
-            <h4>Rak Botol</h4>
             <div class="bottle-grid">
                 <div id="bot-0" class="bottle">1</div>
                 <div id="bot-1" class="bottle">2</div>
@@ -88,23 +87,21 @@
         ]);
 
         // --- 2. LOGIKA UTAMA ---
-        const workspace = Blockly.inject('blocklyDiv', { toolbox: document.getElementById('toolbox'), trashcan: true });
+        const workspace = Blockly.inject('blocklyDiv', { toolbox: document.getElementById('toolbox') });
         let storage = ["#ffffff", "#ffffff", "#ffffff"];
         let lastResult = "#ffffff";
 
-        // Fungsi membaca warna dari blok secara rekursif
         function getBlockColor(block) {
             if (!block) return "#ffffff";
             
             if (block.type === 'color_picker_custom') {
-                const color = block.getFieldValue('COL');
-                block.setColour(color); // Set warna blok agar sama dengan pilihan
+                const color = block.getFieldValue('COL') || "#ffffff";
+                block.setColour(color); // Warna blok ikut berubah
                 return color;
             }
             
             if (block.type === 'get_stored_color') {
-                const id = block.getFieldValue('ID');
-                return storage[id];
+                return storage[block.getFieldValue('ID')] || "#ffffff";
             }
             
             if (block.type === 'color_mixer_ratio') {
@@ -113,16 +110,16 @@
                 const r1 = parseFloat(block.getFieldValue('RATIO1')) || 1;
                 const r2 = parseFloat(block.getFieldValue('RATIO2')) || 1;
                 
-                const c1 = getBlockColor(b1);
-                const c2 = getBlockColor(b2);
-                
-                return mixColorsLogic(c1, r1, c2, r2);
+                return mixColorsLogic(getBlockColor(b1), r1, getBlockColor(b2), r2);
             }
             return "#ffffff";
         }
 
         function mixColorsLogic(c1, r1, c2, r2) {
-            const f = h => h.match(/\w\w/g).map(x => parseInt(x, 16));
+            const f = h => {
+                const m = (h || "#ffffff").match(/\w\w/g);
+                return m ? m.map(x => parseInt(x, 16)) : [255, 255, 255];
+            };
             const rgb1 = f(c1), rgb2 = f(c2);
             const total = r1 + r2;
             const res = [0,1,2].map(i => Math.floor((rgb1[i]*r1 + rgb2[i]*r2)/total));
@@ -138,12 +135,10 @@
             }
         }
 
-        // Jalankan Update Otomatis
         workspace.addChangeListener(() => {
             const blocks = workspace.getAllBlocks(false);
             let result = "#ffffff";
             
-            // Mencari blok yang merupakan hasil akhir (paling luar)
             blocks.forEach(block => {
                 if (!block.getParent()) {
                     result = getBlockColor(block);
