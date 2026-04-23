@@ -4,9 +4,8 @@
     <meta charset="utf-8">
     <title>Lab Warna Taman Numerasi</title>
     <script src="https://unpkg.com/blockly/blockly.min.js"></script>
-    <script src="https://unpkg.com/blockly/javascript_compressed.js"></script>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; display: flex; flex-direction: column; align-items: center; padding: 20px; }
         #main { display: flex; gap: 20px; width: 1100px; max-width: 98vw; }
         #blocklyDiv { height: 600px; flex-grow: 1; border: 3px solid #2c3e50; border-radius: 12px; background: white; }
         #sidebar { width: 300px; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-align: center; }
@@ -15,7 +14,7 @@
         .bottle-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px; }
         .bottle { width: 65px; height: 85px; border: 2px solid #333; border-radius: 5px 5px 20px 20px; background: #fff; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; }
         button { background: #27ae60; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; }
-        .hint { font-size: 11px; color: #7f8c8d; margin-top: 10px; text-align: left; background: #ffffd1; padding: 8px; border-radius: 5px; }
+        .hint { font-size: 11px; color: #7f8c8d; margin-top: 10px; text-align: left; background: #ffffd1; padding: 8px; border-radius: 5px; border: 1px solid #e6db55; }
     </style>
 </head>
 <body>
@@ -39,7 +38,7 @@
             <div class="hint">
                 <b>Cara Tambah Warna:</b><br>
                 1. Klik ikon ⚙️ pada blok pencampur.<br>
-                2. Tarik blok "warna" di dalam kotak kecil ke bawah "induk".
+                2. Tarik blok "warna" di kotak kecil untuk menambah slot input.
             </div>
         </div>
     </div>
@@ -59,14 +58,34 @@
     </xml>
 
     <script>
-        // --- 1. DEFINISI BLOK DINAMIS (MUTATOR) ---
+        // --- 1. DEFINISI BLOK PENDUKUNG MUTATOR ---
+        Blockly.Blocks['mixer_container'] = {
+            init: function() {
+                this.setColour(160);
+                this.appendDummyInput().appendField("Tambah Warna");
+                this.appendStatementInput('STACK');
+                this.contextMenu = false;
+            }
+        };
+
+        Blockly.Blocks['mixer_item'] = {
+            init: function() {
+                this.setColour(160);
+                this.appendDummyInput().appendField("warna");
+                this.setPreviousStatement(true);
+                this.setNextStatement(true);
+                this.contextMenu = false;
+            }
+        };
+
+        // --- 2. DEFINISI BLOK PALET DINAMIS ---
         Blockly.Blocks['palet_dinamis'] = {
             init: function() {
                 this.appendDummyInput().appendField("Palet Pencampur");
                 this.appendDummyInput()
                     .appendField("Satuan:")
                     .appendField(new Blockly.FieldDropdown([["bagian", "PARTS"], ["persen (%)", "PERCENT"]]), "UNIT");
-                this.itemCount_ = 2; // Default 2 warna awal
+                this.itemCount_ = 2; // Mulai dengan 2 warna
                 this.updateShape_();
                 this.setOutput(true, "Color");
                 this.setColour(160);
@@ -132,26 +151,7 @@
             }
         };
 
-        Blockly.Blocks['mixer_container'] = {
-            init: function() {
-                this.setColour(160);
-                this.appendDummyInput().appendField("Jumlah Warna");
-                this.appendStatementInput('STACK');
-                this.contextMenu = false;
-            }
-        };
-
-        Blockly.Blocks['mixer_item'] = {
-            init: function() {
-                this.setColour(160);
-                this.appendDummyInput().appendField("Warna");
-                this.setPreviousStatement(true);
-                this.setNextStatement(true);
-                this.contextMenu = false;
-            }
-        };
-
-        // Blok dasar
+        // --- 3. DEFINISI BLOK STANDAR ---
         Blockly.defineBlocksWithJsonArray([
           {
             "type": "color_simple",
@@ -167,7 +167,7 @@
           }
         ]);
 
-        // --- 2. LOGIKA UTAMA ---
+        // --- 4. INISIALISASI & LOGIKA ---
         const workspace = Blockly.inject('blocklyDiv', { toolbox: document.getElementById('toolbox'), trashcan: true });
         let storage = ["#ffffff", "#ffffff", "#ffffff"];
         let lastResult = "#ffffff";
