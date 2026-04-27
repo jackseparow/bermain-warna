@@ -26,16 +26,9 @@
         }
 
         #title-container { 
-            display: flex; 
-            align-items: center; 
-            gap: 15px; 
-            margin-bottom: 15px; 
-            background: white; 
-            padding: 15px; 
-            border-radius: 15px; 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05); 
-            width: 100%; 
-            max-width: 1200px; 
+            display: flex; align-items: center; gap: 15px; margin-bottom: 15px; 
+            background: white; padding: 15px; border-radius: 15px; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05); width: 100%; max-width: 1200px; 
         }
 
         .maskot { height: clamp(60px, 10vw, 100px); width: auto; }
@@ -44,97 +37,37 @@
         .sub-h2 { color: var(--primary-pink); margin: 5px 0 0 0; font-weight: bold; font-size: clamp(0.8em, 3vw, 1em); }
 
         #instruction-text { 
-            color: #7f8c8d; 
-            text-align: center; 
-            max-width: 850px; 
-            line-height: 1.4; 
-            margin-bottom: 15px; 
-            font-size: 0.9em;
-            padding: 0 10px;
+            color: #7f8c8d; text-align: center; max-width: 850px; 
+            line-height: 1.4; margin-bottom: 15px; font-size: 0.9em; padding: 0 10px;
         }
 
-        .highlight { color: var(--primary-pink); font-weight: bold; }
-
         #main-container { 
-            display: flex; 
-            flex-direction: row; 
-            gap: 15px; 
-            width: 100%; 
-            max-width: 1200px; 
-            height: 70vh; 
-            min-height: 500px;
+            display: flex; flex-direction: row; gap: 15px; width: 100%; 
+            max-width: 1200px; height: 70vh; min-height: 550px;
         }
 
         #blocklyDiv { 
-            flex: 2; 
-            border: 3px solid var(--primary-pink); 
-            border-radius: 12px; 
-            background: white; 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
-            height: 100%;
+            flex: 2; border: 3px solid var(--primary-pink); border-radius: 12px; 
+            background: white; box-shadow: 0 4px 10px rgba(0,0,0,0.1); height: 100%;
         }
 
         #sidebar { 
-            flex: 1; 
-            max-width: 320px; 
-            background: white; 
-            padding: 20px; 
-            border-radius: 12px; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
-            text-align: center; 
-            border-top: 8px solid var(--primary-pink); 
-            overflow-y: auto;
+            flex: 1; max-width: 320px; background: white; padding: 20px; 
+            border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+            text-align: center; border-top: 8px solid var(--primary-pink); overflow-y: auto;
         }
 
-        #preview { 
-            width: 90px; height: 90px; 
-            margin: 10px auto; 
-            border-radius: 50%; 
-            border: 4px solid #eee; 
-            background: #fff; 
-            box-shadow: inset 0 2px 5px rgba(0,0,0,0.1); 
-            transition: background 0.3s; 
-        }
-
+        #preview { width: 90px; height: 90px; margin: 10px auto; border-radius: 50%; border: 4px solid #eee; transition: background 0.3s; }
         #hex-display { font-weight: bold; font-size: 1.1em; margin-bottom: 10px; color: #34495e; }
 
-        .bottle-grid { 
-            display: grid; 
-            grid-template-columns: repeat(3, 1fr); 
-            gap: 8px; 
-            margin-top: 10px; 
-        }
+        .bottle-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
+        .bottle { width: 100%; aspect-ratio: 3/4; border: 2px solid #333; border-radius: 5px 5px 15px 15px; background: #fff; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; }
 
-        .bottle { 
-            width: 100%; 
-            aspect-ratio: 3/4;
-            border: 2px solid #333; 
-            border-radius: 5px 5px 15px 15px; 
-            background: #fff; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            font-size: 10px; 
-            font-weight: bold; 
-            box-shadow: 0 3px 0 #ddd; 
-        }
-
-        button { 
-            background: var(--primary-pink); 
-            color: white; 
-            border: none; 
-            padding: 12px; 
-            border-radius: 8px; 
-            cursor: pointer; 
-            font-weight: bold; 
-            width: 100%; 
-            margin-top: 10px;
-            font-size: 0.9em;
-        }
+        button { background: var(--primary-pink); color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; }
 
         @media (max-width: 850px) {
             #main-container { flex-direction: column; height: auto; }
-            #blocklyDiv { height: 450px; flex: none; }
+            #blocklyDiv { height: 500px; flex: none; }
             #sidebar { max-width: 100%; width: 100%; flex: none; }
         }
     </style>
@@ -150,7 +83,7 @@
     </div>
 
     <div id="instruction-text">
-        <p>Eksperimen dengan <span class="highlight">Proporsi</span>! Pilih metode campuran (Persen atau Bagian) pada blok pencampur untuk hasil yang lebih akurat.</p>
+        <p>Eksperimen <span style="color:var(--primary-pink); font-weight:bold;">Nesting Vertikal</span>! Masukkan blok warna ke dalam slot atas dan bawah blok Campuran.</p>
     </div>
 
     <div id="main-container">
@@ -195,19 +128,25 @@
           },
           {
             "type": "color_mixer_nesting",
-            "message0": "Campur %1 %2 + %3 %4 %5",
+            "message0": "Warna 1: %1 %2",
             "args0": [
               { "type": "field_number", "name": "RATIO1", "value": 1, "min": 0 },
-              { "type": "input_value", "name": "COLOR1", "check": "Color" },
-              { "type": "field_number", "name": "RATIO2", "value": 1, "min": 0 },
-              { "type": "input_value", "name": "COLOR2", "check": "Color" },
+              { "type": "input_value", "name": "COLOR1", "check": "Color" }
+            ],
+            "message1": "Metode: %1",
+            "args1": [
               { 
-                "type": "field_dropdown", 
-                "name": "MODE", 
-                "options": [["Satuan (Bagian)", "PART"], ["Persen (%)", "PERCENT"]] 
+                "type": "field_dropdown", "name": "MODE", 
+                "options": [["Bagian", "PART"], ["Persen (%)", "PERCENT"]] 
               }
             ],
-            "output": "Color", "colour": 160
+            "message2": "Warna 2: %1 %2",
+            "args2": [
+              { "type": "field_number", "name": "RATIO2", "value": 1, "min": 0 },
+              { "type": "input_value", "name": "COLOR2", "check": "Color" }
+            ],
+            "output": "Color", "colour": 160,
+            "inputsInline": false
           },
           {
             "type": "get_stored_color",
@@ -247,13 +186,9 @@
                 let r1 = parseFloat(block.getFieldValue('RATIO1')) || 0;
                 let r2 = parseFloat(block.getFieldValue('RATIO2')) || 0;
                 
-                // Jika mode persen, pastikan totalnya relevan
                 if (mode === "PERCENT") {
                     const total = r1 + r2;
-                    if (total > 0) {
-                        r1 = r1 / total;
-                        r2 = r2 / total;
-                    }
+                    if (total > 0) { r1 = r1 / total; r2 = r2 / total; }
                 }
 
                 const c1 = getBlockColor(b1);
@@ -270,16 +205,13 @@
             if (!c1 && !c2) return "#ffffff";
             if (c1 && !c2) return c1;
             if (!c1 && c2) return c2;
-
             const f = h => {
                 if(h.startsWith('rgb')) return h.match(/\d+/g).map(Number);
                 return h.match(/\w\w/g).map(x => parseInt(x, 16));
             };
-            
             const rgb1 = f(c1), rgb2 = f(c2);
             const total = r1 + r2;
             if (total === 0) return "#ffffff";
-
             const res = [0,1,2].map(i => Math.floor((rgb1[i]*r1 + rgb2[i]*r2)/total));
             return "#" + res.map(x => x.toString(16).padStart(2, '0')).join('');
         }
@@ -298,9 +230,7 @@
             const blocks = workspace.getAllBlocks(false);
             let result = "#ffffff";
             blocks.forEach(block => {
-                if (!block.getParent()) {
-                    result = getBlockColor(block) || "#ffffff";
-                }
+                if (!block.getParent()) { result = getBlockColor(block) || "#ffffff"; }
             });
             lastResult = result;
             document.getElementById('preview').style.backgroundColor = result;
@@ -308,7 +238,7 @@
         });
 
         window.addEventListener('resize', () => Blockly.svgResize(workspace));
-        window.onload = initGame;
+        window.onload = () => workspace.fireChangeListener(new Blockly.Events.BlockChange());
     </script>
 </body>
 </html>
